@@ -130,10 +130,6 @@ body {
     font-weight: 700;
 }
 
-.disclaimer-short {
-    display: none;
-}
-
 /* ─── Main Grid ─── */
 .main-grid {
     display: grid;

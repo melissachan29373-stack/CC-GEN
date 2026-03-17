@@ -114,16 +114,10 @@
         padding: 1px 6px;
     }
 
-    /* Disclaimer — show short version on mobile */
+    /* Disclaimer */
     .disclaimer-banner {
         padding: 6px 12px;
         font-size: 11px;
-    }
-    .disclaimer-full {
-        display: none;
-    }
-    .disclaimer-short {
-        display: inline;
     }
 
     /* Panels */
