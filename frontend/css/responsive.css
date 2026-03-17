@@ -1,0 +1,109 @@
+/* ================================================================
+   CC-GEN v2.0 — Responsive Breakpoints
+   ================================================================ */
+
+/* Mobile-first base is already in main.css */
+
+/* Small phones → Large phones */
+@media (min-width: 480px) {
+    .main-grid {
+        padding: 16px;
+    }
+    .card-3d {
+        width: 340px;
+        height: 214px;
+    }
+}
+
+/* Phones → Small tablets */
+@media (min-width: 640px) {
+    .main-grid {
+        padding: 20px;
+    }
+    .output-cards-list {
+        max-height: 360px;
+    }
+}
+
+/* Tablets */
+@media (min-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr 1fr;
+        padding: 24px;
+        gap: 24px;
+    }
+    .bottom-panels {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    .header-content {
+        padding: 0 24px;
+    }
+}
+
+/* Laptops */
+@media (min-width: 1024px) {
+    .main-grid {
+        grid-template-columns: 380px 1fr;
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 28px;
+        padding: 28px;
+    }
+    .bottom-panels {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 28px 28px;
+    }
+}
+
+/* Desktops */
+@media (min-width: 1280px) {
+    .main-grid {
+        grid-template-columns: 420px 1fr;
+        max-width: 1400px;
+        gap: 32px;
+        padding: 32px;
+    }
+    .bottom-panels {
+        max-width: 1400px;
+        padding: 0 32px 32px;
+    }
+}
+
+/* Large desktops / 4K */
+@media (min-width: 1536px) {
+    .main-grid {
+        max-width: 1600px;
+        grid-template-columns: 460px 1fr;
+    }
+    .bottom-panels {
+        max-width: 1600px;
+    }
+}
+
+/* Mobile overrides */
+@media (max-width: 767px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    .bottom-panels {
+        grid-template-columns: 1fr;
+    }
+    .header-title {
+        font-size: 18px;
+    }
+    .quick-presets {
+        flex-wrap: wrap;
+    }
+    .preset-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+    .tab-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .tab-bar::-webkit-scrollbar {
+        display: none;
+    }
+}

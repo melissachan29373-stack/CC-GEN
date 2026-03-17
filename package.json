@@ -1,0 +1,16 @@
+{
+  "name": "ccgen",
+  "version": "2.0.0",
+  "private": true,
+  "description": "CC-GEN — Credit Card Number Generator for Testing",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'Static site - no build step needed'"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

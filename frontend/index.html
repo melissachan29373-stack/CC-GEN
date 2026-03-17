@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CC-GEN v2.0 — Credit Card Generator for Testing</title>
+    <meta name="description" content="High-performance credit card number generator for testing and development. Powered by Rust/WebAssembly.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <!-- Fonts preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/card-preview.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data:;">
+</head>
+<body>
+
+    <!-- ═══ Header ═══ -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-logo">⚡</div>
+                <span class="header-title">CC-GEN</span>
+                <span class="header-version">v2.0</span>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ Disclaimer ═══ -->
+    <div class="disclaimer-banner">
+        <strong>⚠️ DISCLAIMER:</strong> Generated numbers are for <strong>testing/development only</strong>. They are mathematically valid but NOT real credit cards. Using fake card numbers for fraud is <strong>illegal</strong>.
+    </div>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="main-grid">
+
+        <!-- ─── Left Panel: Generator ─── -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-title-icon">▸</span>
+                    GENERATOR
+                </div>
+                <span id="brand-indicator" style="display:none;font-size:11px;font-weight:600;padding:3px 10px;border-radius:9999px;background:var(--accent-primary);color:#fff;"></span>
+            </div>
+            <div class="panel-body">
+                <!-- BIN Pattern -->
+                <div class="form-group">
+                    <label class="form-label" for="bin-input">BIN Pattern</label>
+                    <input type="text" id="bin-input" class="form-input" value="" placeholder="4xxxxxxxxxxxxxxx" spellcheck="false" autocomplete="off">
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="form-group">
+                    <label class="form-label">Quick Presets</label>
+                    <div class="quick-presets">
+                        <button class="preset-btn active" data-bin="4xxxxxxxxxxxxxxx" data-length="16">Visa</button>
+                        <button class="preset-btn" data-bin="5[1-5]xxxxxxxxxxxxxx" data-length="16">MasterCard</button>
+                        <button class="preset-btn" data-bin="37xxxxxxxxxxxxx" data-length="15">Amex</button>
+                        <button class="preset-btn" data-bin="6011xxxxxxxxxxxx" data-length="16">Discover</button>
+                        <button class="preset-btn" data-bin="3528xxxxxxxxxxxx" data-length="16">JCB</button>
+                        <button class="preset-btn" data-bin="62xxxxxxxxxxxxxx" data-length="16">UnionPay</button>
+                        <button class="preset-btn" data-bin="36xxxxxxxxxxxx" data-length="14">Diners</button>
+                        <button class="preset-btn" data-bin="2200xxxxxxxxxxxx" data-length="16">Mir</button>
+                        <button class="preset-btn" data-bin="5018xxxxxxxxxxxx" data-length="16">Maestro</button>
+                    </div>
+                </div>
+
+                <!-- Exp / CVV / Length -->
+                <div class="form-row" style="margin-bottom:16px;">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" for="exp-month">Month</label>
+                        <input type="text" id="exp-month" class="form-input" placeholder="Random" maxlength="2" style="text-align:center">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" for="exp-year">Year</label>
+                        <input type="text" id="exp-year" class="form-input" placeholder="Random" maxlength="4" style="text-align:center">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" for="exp-cvv">CVV</label>
+                        <input type="text" id="exp-cvv" class="form-input" placeholder="Random" maxlength="4" style="text-align:center">
+                    </div>
+                </div>
+
+                <!-- Hidden card length -->
+                <input type="hidden" id="card-length" value="">
+
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label class="form-label">Quantity</label>
+                    <div class="range-group">
+                        <input type="range" id="quantity-slider" class="range-slider" min="1" max="1000" value="10">
+                        <span class="range-value" id="quantity-display">10</span>
+                    </div>
+                </div>
+
+                <!-- Format -->
+                <div class="form-group">
+                    <label class="form-label" for="format-select">Output Format</label>
+                    <select id="format-select" class="form-select">
+                        <option value="pipe">Pipe ( | )</option>
+                        <option value="csv">CSV</option>
+                        <option value="tsv">TSV</option>
+                        <option value="json">JSON Lines</option>
+                        <option value="json_array">JSON Array</option>
+                        <option value="xml">XML</option>
+                        <option value="yaml">YAML</option>
+                        <option value="sql">SQL INSERT</option>
+                        <option value="card_only">Card Only</option>
+                        <option value="formatted">Formatted</option>
+                        <option value="stripe">Stripe Test</option>
+                        <option value="paypal">PayPal Sandbox</option>
+                    </select>
+                </div>
+
+                <!-- Generate Button -->
+                <button id="btn-generate" class="btn-generate btn-ripple">
+                    <span class="btn-icon">⚡</span>
+                    GENERATE
+                </button>
+            </div>
+        </section>
+
+        <!-- ─── Right Panel: Output ─── -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-title-icon">▸</span>
+                    OUTPUT
+                </div>
+            </div>
+            <div class="panel-body">
+                <!-- Output Textarea -->
+                <textarea id="output-area" class="output-textarea" readonly placeholder="Generated cards will appear here..."></textarea>
+
+                <!-- Action Buttons -->
+                <div class="output-actions">
+                    <button id="btn-copy" class="btn-action btn-copy"><span>📋</span> Copy</button>
+                    <button id="btn-download" class="btn-action"><span>💾</span> Download</button>
+                    <button id="btn-clear" class="btn-action"><span>🗑️</span> Clear</button>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Generated</div>
+                        <div class="stat-value" id="stat-generated">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Valid</div>
+                        <div class="stat-value success" id="stat-valid">0/0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="stat-time">—</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Entropy</div>
+                        <div class="stat-value" id="stat-entropy">—</div>
+                    </div>
+                </div>
+
+                <!-- Card Preview -->
+                <div class="card-preview-container">
+                    <div class="card-3d" id="card-3d" title="Click to flip">
+                        <!-- Front -->
+                        <div class="card-face card-front" style="background: linear-gradient(135deg, #1a1f71, #2d3494);">
+                            <div class="card-top-row">
+                                <div class="card-chip"></div>
+                                <div class="card-brand-logo" id="preview-brand">VISA</div>
+                            </div>
+                            <div class="card-number-display" id="preview-number">•••• •••• •••• ••••</div>
+                            <div class="card-bottom-row">
+                                <div>
+                                    <div class="card-holder-label">CARD HOLDER</div>
+                                    <div class="card-holder-name">TEST CARD</div>
+                                </div>
+                                <div class="card-expiry-section">
+                                    <div class="card-expiry-label">EXPIRES</div>
+                                    <div class="card-expiry-value" id="preview-expiry">••/••</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Back -->
+                        <div class="card-face card-back" style="background: linear-gradient(135deg, #1a1f71, #2d3494);">
+                            <div class="magnetic-stripe"></div>
+                            <div class="cvv-area">
+                                <span class="cvv-label">CVV</span>
+                                <div class="cvv-strip" id="preview-cvv">•••</div>
+                            </div>
+                            <div class="card-back-footer">
+                                This card is for testing purposes only.<br>
+                                Not a real financial instrument.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══ Bottom Tabs ═══ -->
+    <div class="bottom-panels">
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="history">📊 History</button>
+            <button class="tab-btn" data-tab="lookup">🔍 BIN Lookup</button>
+            <button class="tab-btn" data-tab="validator">✅ Validator</button>
+        </div>
+
+        <!-- History Tab -->
+        <div id="tab-history" class="tab-content active">
+            <div class="tab-panel-inner">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">Recent Cards</span>
+                    <button id="btn-clear-history" class="btn-action" style="padding:4px 10px;font-size:11px;">Clear</button>
+                </div>
+                <div id="history-list" class="history-list">
+                    <div class="history-empty">No cards generated yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BIN Lookup Tab -->
+        <div id="tab-lookup" class="tab-content">
+            <div class="tab-panel-inner">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label" for="lookup-input">Enter BIN (6-8 digits)</label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="lookup-input" class="form-input" placeholder="e.g. 411111" maxlength="8" style="flex:1">
+                        <button id="btn-lookup" class="btn-action" style="white-space:nowrap;">🔍 Lookup</button>
+                    </div>
+                </div>
+                <div id="lookup-results" class="lookup-result">
+                    <p style="color:var(--text-muted);text-align:center;padding:16px;font-size:13px;">Enter a BIN to see card details</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validator Tab -->
+        <div id="tab-validator" class="tab-content">
+            <div class="tab-panel-inner">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label" for="validate-input">Enter Card Number</label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="validate-input" class="form-input" placeholder="e.g. 4111111111111111" style="flex:1">
+                        <button id="btn-validate" class="btn-action" style="white-space:nowrap;">✅ Validate</button>
+                    </div>
+                </div>
+                <div id="validation-results" class="validation-results">
+                    <p style="color:var(--text-muted);text-align:center;padding:16px;font-size:13px;">Enter a card number to validate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="app-footer">
+        <strong>⚠️ Educational & testing use only.</strong> Generated numbers are NOT real credit cards.<br>
+        CC-GEN v2.0 — Powered by Rust + WebAssembly | <a href="https://github.com/fitrianabila2025group/CC-GEN" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts (ES Module) -->
+    <script src="js/theme.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/shortcuts.js"></script>
+    <script type="module" src="js/app.js"></script>
+
+</body>
+</html>
