@@ -19,6 +19,7 @@
             justify-content: center;
             text-align: center;
             padding: 2rem;
+            transition: background 0.3s, color 0.3s;
         }
         .error-container {
             max-width: 480px;
@@ -27,14 +28,10 @@
             font-size: 8rem;
             font-weight: 900;
             line-height: 1;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary, #6366f1));
+            background: var(--gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
-        }
-        .error-icon {
-            font-size: 4rem;
             margin-bottom: 1rem;
         }
         .error-title {
@@ -54,7 +51,7 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 2rem;
-            background: var(--accent-primary);
+            background: var(--gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
             color: #fff;
             text-decoration: none;
             border-radius: 8px;
@@ -67,14 +64,14 @@
             transform: translateY(-1px);
         }
         .card-animation {
-            margin: 2rem 0;
+            margin: 2rem auto;
             width: 200px;
             height: 120px;
-            background: linear-gradient(135deg, #374151, #6b7280);
+            background: var(--gradient-primary, linear-gradient(135deg, #374151, #6b7280));
             border-radius: 12px;
             position: relative;
             animation: float 3s ease-in-out infinite;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-lg, 0 10px 30px rgba(0,0,0,0.3));
         }
         .card-animation::before {
             content: '?';
@@ -95,6 +92,27 @@
             background: linear-gradient(135deg, #d4a843, #c4972e);
             border-radius: 4px;
         }
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover {
+            background: var(--bg-glass-hover);
+            color: var(--text-primary);
+        }
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(-3deg); }
             50% { transform: translateY(-15px) rotate(3deg); }
@@ -102,6 +120,7 @@
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">☀️</button>
     <div class="error-container">
         <div class="error-code">404</div>
         <div class="card-animation"><div class="chip"></div></div>
@@ -114,5 +133,28 @@
             <span>⚡</span> Back to CC-GEN
         </a>
     </div>
+    <script>
+        // Sync theme with main page
+        (function() {
+            const saved = localStorage.getItem('ccgen-theme');
+            const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            updateBtn();
+
+            document.getElementById('theme-toggle').addEventListener('click', function() {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('ccgen-theme', next);
+                updateBtn();
+            });
+
+            function updateBtn() {
+                const btn = document.getElementById('theme-toggle');
+                const t = document.documentElement.getAttribute('data-theme');
+                btn.textContent = t === 'dark' ? '\u2600\ufe0f' : '\ud83c\udf19';
+            }
+        })();
+    </script>
 </body>
 </html>
