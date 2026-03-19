@@ -110,12 +110,20 @@ const App = {
             return;
         }
 
+        // Normalize month (zero-pad) and year (expand 2-digit to 4-digit)
+        const normalizeMonth = (m) => m ? m.padStart(2, '0') : m;
+        const normalizeYear = (y) => {
+            if (!y) return y;
+            if (y.length <= 2) return '20' + y.padStart(2, '0');
+            return y;
+        };
+
         // Overwrite expiry/cvv if user specified
         if (month || year || cvv) {
             result.cards = result.cards.map(card => ({
                 ...card,
-                expiration_month: month || card.expiration_month,
-                expiration_year: year || card.expiration_year,
+                expiration_month: normalizeMonth(month) || normalizeMonth(card.expiration_month),
+                expiration_year: normalizeYear(year) || normalizeYear(card.expiration_year),
                 cvv: cvv || card.cvv,
             }));
             // Reformat if user specified fields
